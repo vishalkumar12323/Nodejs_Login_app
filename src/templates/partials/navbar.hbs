@@ -1,0 +1,51 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Palme Store</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Store</a>
+        </li>
+        <li class="nav-item me-1">
+          <a class="nav-link" href="#">Contact</a>
+        </li>
+        <li class="nav-item me-2 d-flex justify-content-center align-items-center">
+          <button
+            class="btn btn-danger btn-sm"
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#LogInModal"
+          >LogIn</button>
+        </li>
+        <li class="nav-item  d-flex justify-content-center align-items-center">
+          <button
+            class="btn btn-danger btn-sm"
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#SignUpModal"
+          >SignUp</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+{{!-- LogIn Modal  --}}
+{{>logIn}}
+
+{{!-- SignUp Modal  --}}
+{{>signUp}}
