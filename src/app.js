@@ -3,6 +3,7 @@ const express = require("express");
 const path = require("path");
 const hbs = require("hbs");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const connectDB = require("../db/dataBaseConnections");
 const Contact = require("../model/contactSchema");
 
@@ -48,13 +49,23 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/signup", async (req, res) => {
-  const data = await Contact(req.body);
-  if (!data) {
-    res.status(401).send(data);
+  try {
+    const data = new Contact(req.body);
+
+    // Save the document to the database
+    await data.save();
+
+    // Generate and log the JWT
+    const token = await data.generateAuthToken();
+    console.log(token);
+
+    console.log("Data Save Successfully");
+    res.render("index");
+  } catch (error) {
+    // Handle errors appropriately
+    console.error(error);
+    res.status(500).send("An error occurred");
   }
-  data.save();
-  console.log("Data Save Successfully");
-  res.render("index");
 });
 
 const run = async () => {
