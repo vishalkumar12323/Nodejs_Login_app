@@ -3,12 +3,14 @@ const express = require("express");
 const path = require("path");
 const hbs = require("hbs");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 const connectDB = require("../db/dataBaseConnections");
 const Contact = require("../model/contactSchema");
+const authentication = require("./middleware/authentication");
 
 const Port = process.env.PORT || 3000;
 const app = express();
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
@@ -21,27 +23,30 @@ hbs.registerPartials(partials_Path);
 app.get("/", (req, res) => {
   res.render("index");
 });
-
+app.get("/store", authentication, (req, res) => {
+  res.render("store");
+});
+app.get("/contact", (req, res) => {
+  res.render("contact");
+});
 app.post("/login", async (req, res) => {
   try {
     const email = req.body.email;
     const password = req.body.password;
 
-    // Use the Contact model to find a user with the provided email
     const userData = await Contact.findOne({ email });
 
-    // compare password using bcrypt compare function
-    bcrypt.compare(password, userData.password, function () {
-      if (!userData) {
-        // If no user is found with the provided email
-        return res.status(400).send("Invalid user email and password");
-      }
-      if (userData) {
-        res.render("index");
-      } else {
-        res.status(400).send("Invalid user email and password");
-      }
+    const isVerify = await bcrypt.compare(password, userData.password);
+    const token = await userData.generateAuthToken();
+    res.cookie("jwt", token, {
+      expires: new Date(Date.now() + 500000),
+      httpOnly: true,
     });
+    if (isVerify === true) {
+      res.render("index");
+    } else {
+      return res.status(400).send("Invalid user email and password");
+    }
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
@@ -51,18 +56,16 @@ app.post("/login", async (req, res) => {
 app.post("/signup", async (req, res) => {
   try {
     const data = new Contact(req.body);
-
-    // Save the document to the database
     await data.save();
 
-    // Generate and log the JWT
     const token = await data.generateAuthToken();
-    console.log(token);
-
+    res.cookie("jwt", token, {
+      expires: new Date(Date.now() + 500000),
+      httpOnly: true,
+    });
     console.log("Data Save Successfully");
     res.render("index");
   } catch (error) {
-    // Handle errors appropriately
     console.error(error);
     res.status(500).send("An error occurred");
   }
